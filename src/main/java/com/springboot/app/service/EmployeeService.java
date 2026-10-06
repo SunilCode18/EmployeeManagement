@@ -82,5 +82,17 @@ public class EmployeeService {
 		return empdto;
 	}
 	
+	public List<EmployeeResponseDTO> searchEmployees(String Keyword) {
+		List<Employee> employees = employeeRepository.findByNameContainingIgnoreCaseOrDesignationContainingIgnoreCaseOrDepartmentContainingIgnoreCase(Keyword, Keyword, Keyword);
+		
+		List<EmployeeResponseDTO> response = new ArrayList<>();
+		
+		for(Employee emp : employees) {
+			response.add(convertToResponseDTO(emp));
+		}
+		
+		return response;
+	}
+	
 
 }
