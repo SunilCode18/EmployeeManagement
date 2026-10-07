@@ -1,0 +1,26 @@
+name: Deploy Employee Management
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/EmployeeManagement
+            git pull origin master
+            ./mvnw clean package -DskipTests
+            sudo docker build -t employee-management:latest .
+            sudo docker stop employee-management-container || true
+            sudo docker rm employee-management-container || true
+            sudo docker run -d --name employee-management-container -p 8090:8090 --env-file .env employee-management:latest
